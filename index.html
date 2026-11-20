@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>셔틀 추천</title>
+  <style>
+    :root {
+      --bg: #f2f7f3;
+      --card: #fff;
+      --tx: #141922;
+      --sub: #5f6f65;
+      --line: #dde7e0;
+      --ac: #14532d;
+      --acbg: #dff0e5;
+      --wn: #a15c07;
+      --wnbg: #fff3de;
+      --nt: #0f766e;
+      --ntbg: #d6f0ec;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px)
+    }
+
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0e1117;
+        --card: #171b24;
+        --tx: #eef1f6;
+        --sub: #9aa4b5;
+        --line: #2a303c;
+        --ac: #5fd08a;
+        --acbg: #12301f;
+        --wn: #f0b45a;
+        --wnbg: #3a2c12;
+        --nt: #5eead4;
+        --ntbg: #123a36
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0e1117;
+      --card: #171b24;
+      --tx: #eef1f6;
+      --sub: #9aa4b5;
+      --line: #2a303c;
+      --ac: #5fd08a;
+      --acbg: #12301f;
+      --wn: #f0b45a;
+      --wnbg: #3a2c12;
+      --nt: #5eead4;
+      --ntbg: #123a36
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--tx);
+      font-family: -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+      line-height: 1.45
+    }
+
+    main {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 18px 14px 40px
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 4px 0 2px
+    }
+
+    .sub {
+      color: var(--sub);
+      font-size: 13px
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      margin-top: 12px
+    }
+
+    .clock {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .big {
+      font-size: 30px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--acbg);
+      color: var(--ac)
+    }
+
+    .pill.n {
+      background: var(--ntbg);
+      color: var(--nt)
+    }
+
+    .seg {
+      display: flex;
+      gap: 4px;
+      background: var(--bg);
+      padding: 3px;
+      border-radius: 10px;
+      margin-top: 10px
+    }
+
+    .seg button {
+      flex: 1;
+      border: 0;
+      background: none;
+      color: var(--sub);
+      padding: 7px;
+      border-radius: 8px;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer
+    }
+
+    .seg button.on {
+      background: var(--card);
+      color: var(--tx);
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .15)
+    }
+
+    .pick {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: end
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--sub);
+      display: block;
+      margin-bottom: 4px
+    }
+
+    select,
+    input[type=time] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--tx);
+      font: inherit;
+      font-size: 15px
+    }
+
+    .sw {
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--tx);
+      border-radius: 10px;
+      width: 40px;
+      height: 42px;
+      font-size: 18px;
+      cursor: pointer
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--line)
+    }
+
+    .row:first-child {
+      border-top: 0
+    }
+
+    .row.past {
+      opacity: .45
+    }
+
+    .t {
+      font-size: 24px;
+      font-weight: 700;
+      min-width: 72px;
+      font-variant-numeric: tabular-nums
+    }
+
+    .mid {
+      flex: 1;
+      min-width: 0
+    }
+
+    .ln {
+      font-size: 14px;
+      font-weight: 600
+    }
+
+    .ar {
+      font-size: 12px;
+      color: var(--sub)
+    }
+
+    .rem {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ac);
+      white-space: nowrap
+    }
+
+    .row.next {
+      background: var(--acbg);
+      margin: 0 -14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border-top: 0
+    }
+
+    .g {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 99px;
+      background: var(--wnbg);
+      color: var(--wn);
+      margin-left: 4px
+    }
+
+    .msg {
+      color: var(--sub);
+      font-size: 14px;
+      padding: 6px 0
+    }
+
+    .note {
+      font-size: 12.5px;
+      color: var(--wn);
+      background: var(--wnbg);
+      padding: 8px 10px;
+      border-radius: 10px;
+      margin-top: 10px
+    }
+
+    details {
+      font-size: 13px;
+      color: var(--sub)
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--tx)
+    }
+
+    details li {
+      margin: 4px 0
+    }
+
+    .timeline {
+      display: flex;
+      gap: 8px;
+      align-items: end;
+      margin-top: 10px
+    }
+
+    .timeline>div:first-child {
+      flex: 1
+    }
+
+    .timeline button {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--tx);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>🚌 셔틀 추천</h1>
+    <div class="sub">출발지·도착지를 고르면 지금 탈 수 있는 셔틀을 알려줘요</div>
+
+    <div class="card">
+      <div class="clock">
+        <div>
+          <div class="sub" id="dt"></div>
+          <div class="big" id="clk"></div>
+        </div><span class="pill" id="modeP"></span>
+      </div>
+      <div class="seg" id="seg"><button data-m="auto" class="on">자동</button><button data-m="day">주간</button><button
+          data-m="night">야간</button></div>
+      <div class="timeline">
+        <div><label for="tm">시각 직접 지정 (테스트용)</label><input type="time" id="tm"></div><button id="now">현재 시각</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="pick">
+        <div><label for="from">출발</label><select id="from"></select></div>
+        <button class="sw" id="swap" aria-label="바꾸기">⇄</button>
+        <div><label for="to">도착</label><select id="to"></select></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="win" class="sub" style="margin-bottom:4px"></div>
+      <div id="out"></div>
+    </div>
+
+    <div class="card">
+      <details>
+        <summary>⚠️ 추정 데이터 안내</summary>
+        <ul>
+          <li>도착 정보에서 하행의 정문 도착 시간, 상행의 연협/긱삼/한우리 도착 시간은 추정치를 바탕으로 작성했습니다.</li>
+          <li>공대삼거리 상행의 19:04 이후 시간표(21시까지)는 자료가 없어 기존 시간 패턴을 이어서 추정했습니다. 하행 연협선의 공대삼거리·포스코관도 19시대 이후는 같은 방식으로 추정했습니다.</li>
+          <li>야간셔틀은 배차 간격이 10분임을 고려하여 추정치를 바탕으로 작성했습니다.</li>
+          <li>야간셔틀은 정류장 간 소요시간이 나와있지 않아 전부 추정치입니다.</li>
+        </ul>
+      </details>
+    </div>
+  </main>
+  <script>
+    const D = [0, 10, 15, 20, 30, 35, 40, 50, 55], C = [0, 10, 20, 30, 40, 50], F = [0, 5, 10, 20, 25, 30, 40, 45, 50], E = [0, 5, 10, 20, 25, 30, 40, 45, 50, 55], G = [0, 10, 20, 25, 30, 40, 50], T = [0, 20, 40];
+    const NM = {gate: '정문', posco: '포스코관', gong: '공대삼거리', gik: '기숙사삼거리', yeon: '연구협력관', hanuri: '한우리집', joye: '조예대삼거리', ehouse: 'E-House(이하우스)', dorm: '기숙사 (한우리 또는 긱삼)'};
+    const GRP = {dorm: ['hanuri', 'gik']};
+    const OPT = {day: ['gate', 'posco', 'gong', 'gik', 'yeon', 'hanuri', 'dorm'], night: ['joye', 'posco', 'hanuri', 'ehouse']};
+    const DEF = {day: ['gate', 'dorm'], night: ['joye', 'hanuri']};
+    const LN = [
+      {
+        k: 'Au', name: '상행 · 연구협력관행', stops: ['gate', 'posco', 'gong', 'gik', 'yeon'], off: [0, 2, 4, 6, 7], ref: 'gong', guess: ['gik', 'yeon'], data: {
+          gate: [['07:50', '11:00', D, 0], ['11:10', '11:50', C, 0], ['13:00', '15:40', C, 0], ['15:50', '21:00', D, 0]],
+          posco: [['07:52', '11:02', D, 2], ['11:12', '11:52', C, 2], ['13:02', '15:42', C, 2], ['15:52', '21:02', D, 2]],
+          gong: [['07:54', '11:04', D, 4], ['11:14', '11:54', C, 4], ['13:04', '15:44', C, 4], ['15:54', '19:04', D, 4], ['19:05', '21:04', D, 4, 1]]
+        }
+      },
+      {
+        k: 'Ad', name: '하행 · 정문행', stops: ['yeon', 'gik', 'gong', 'posco', 'gate'], off: [0, 1, 3, 5, 7], ref: 'posco', guess: ['gate'], data: {
+          yeon: [['08:00', '11:05', D, 0], ['11:10', '12:00', C, 0], ['13:10', '15:50', C, 0], ['16:00', '21:00', E, 0]],
+          gik: [['08:01', '11:11', F, 1], ['11:21', '12:11', C, 1], ['13:11', '15:51', C, 1], ['16:01', '21:11', F, 1]],
+          gong: [['08:03', '11:13', F, 3], ['11:23', '12:13', C, 3], ['13:13', '15:53', C, 3], ['16:03', '19:13', F, 3], ['19:14', '21:13', F, 3, 1]],
+          posco: [['08:05', '11:15', F, 5], ['11:16', '12:05', C, 5], ['13:15', '15:55', C, 5], ['16:00', '19:15', G, 5], ['19:16', '21:15', G, 5, 1]]
+        }
+      },
+      {
+        k: 'Bu', name: '상행 · 한우리행', stops: ['gate', 'posco', 'gong', 'hanuri'], off: [0, 2, 4, 7], ref: 'gong', guess: ['hanuri'], data: {
+          gate: [['08:25', '10:45', T, 5], ['13:25', '16:05', T, 5]],
+          posco: [['08:27', '10:47', T, 7], ['13:27', '16:07', T, 7]],
+          gong: [['08:29', '10:49', T, 9], ['13:29', '16:09', T, 9]]
+        }
+      },
+      {
+        k: 'Bd', name: '하행 · 정문행 (한우리행)', stops: ['hanuri', 'gong', 'posco', 'gate'], off: [0, 3, 5, 7], ref: 'posco', guess: ['gate'], data: {
+          hanuri: [['08:35', '10:55', T, 15], ['13:35', '16:15', T, 15]],
+          gong: [['08:38', '10:58', T, 18], ['13:38', '16:18', T, 18]],
+          posco: [['08:40', '11:00', T, 0], ['13:40', '16:20', T, 0]]
+        }
+      }
+    ];
+    const NL = [
+      {k: 'No', night: 1, name: '야간 · 조예대삼거리행', stops: ['ehouse', 'hanuri', 'posco', 'joye'], off: [0, 3, 5, 7], ref: 'ehouse', guess: ['hanuri', 'posco', 'joye'], wk: ['21:23', '23:33'], sat: ['19:23', '23:44']},
+      {k: 'Ni', night: 1, name: '야간 · E-House행', stops: ['joye', 'posco', 'hanuri', 'ehouse'], off: [0, 2, 5, 7], ref: 'joye', guess: ['posco', 'hanuri', 'ehouse'], wk: ['21:10', '23:40'], sat: ['19:10', '23:40']}
+    ];
+    const hm = s => {const [a, b] = s.split(':'); return +a * 60 + +b};
+    const fmt = t => {t = ((t % 1440) + 1440) % 1440; return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0')};
+    function gen(per) {const o = []; for (const [s, e, set, sh, g] of per) {const a = hm(s), b = hm(e); for (let h = 6; h <= 22; h++)for (const v of set) {const t = h * 60 + v + sh; if (t >= a && t <= b) o.push([t, !!g])} } return o}
+    function base(L, src, day) {if (L.night) {const r = L[day == 6 ? 'sat' : 'wk']; const o = []; for (let t = hm(r[0]); t <= hm(r[1]); t += 10)o.push([t, false]); return o} return gen(L.data[src])}
+    function times(L, stop, day) {const i = s => L.stops.indexOf(s); const has = L.night ? stop === L.stops[0] : !!L.data[stop]; const src = has ? stop : L.ref; const sh = has ? 0 : L.off[i(stop)] - L.off[i(src)]; return base(L, src, day).map(([t, g]) => [t + sh, g, !has])}
+    const ex = id => GRP[id] || [id];
+    function rowsFor(lines, fr, to, day) {
+      const rows = []; let route = false;
+      for (const L of lines) for (const o of ex(fr)) for (const d of ex(to)) {
+        const io = L.stops.indexOf(o), id = L.stops.indexOf(d); if (io < 0 || id <= io) continue; route = true;
+        const dl = L.off[id] - L.off[io]; const gs = L.guess.includes(o) || L.guess.includes(d);
+        for (const [t, g, dv] of times(L, o, day)) rows.push({t, arr: t + dl, L, o, d, gd: !!(g || dv), ga: gs})
+      }
+      rows.sort((a, b) => a.t - b.t); return {rows, route}
+    }
+    const $ = id => document.getElementById(id);
+    let mode = 'auto', manual = null, cur = null;
+    const isNight = (day, n) => (day >= 1 && day <= 5 && n >= 21 * 60 + 10) || (day == 6 && n >= 19 * 60 + 10);
+    function fillSel(kind) {
+      const fs = $('from'), ts = $('to'); const pf = fs.value, pt = ts.value;
+      for (const s of [fs, ts]) {s.innerHTML = OPT[kind].map(k => `<option value="${k}">${NM[k]}</option>`).join('')}
+      fs.value = OPT[kind].includes(pf) ? pf : DEF[kind][0]; ts.value = OPT[kind].includes(pt) ? pt : DEF[kind][1]
+    }
+    function render() {
+      const d = new Date(); const day = d.getDay(); let n = d.getHours() * 60 + d.getMinutes();
+      $('dt').textContent = ['일', '월', '화', '수', '목', '금', '토'][day] + '요일' + (manual ? ' · 직접 지정' : '');
+      if (manual) n = hm(manual);
+      $('clk').textContent = fmt(n);
+      const kind = mode === 'auto' ? (isNight(day, n) ? 'night' : 'day') : mode;
+      if (kind !== cur) {cur = kind; fillSel(kind)}
+      const p = $('modeP'); p.className = 'pill' + (kind == 'night' ? ' n' : ''); p.textContent = (kind == 'night' ? '🌙 야간셔틀' : '☀️ 주간셔틀') + (mode === 'auto' ? ' (자동)' : '');
+      const fr = $('from').value, to = $('to').value, out = $('out');
+      $('win').textContent = `${fmt(n - 5)} ~ ${fmt(n + 30)} 출발 (−5분 ~ +30분)`;
+      if (day == 0) {out.innerHTML = '<div class="msg">일요일은 운행하는 셔틀이 없어요.</div>'; return }
+      if (kind == 'day' && day == 6) {out.innerHTML = '<div class="msg">토요일은 야간셔틀만 운행해요. (19:10부터)</div>'; return }
+      if (fr === to) {out.innerHTML = '<div class="msg">출발지와 도착지가 같아요.</div>'; return }
+      const {rows, route} = rowsFor(kind == 'night' ? NL : LN, fr, to, day);
+      let html = '';
+      if (!route) {html += `<div class="msg">해당 경로는 없어요.</div>`; out.innerHTML = html; return }
+      const w = rows.filter(r => r.t >= n - 5 && r.t <= n + 30);
+      if (!w.length) {const nx = rows.find(r => r.t > n + 30); html += '<div class="msg">이 시간대에는 운행하는 셔틀이 없어요.<br>8시 운행 시작 · 12~13시 점심 운휴 · 23시 40분 운행 종료.' + (nx ? ` 다음 셔틀은 <b>${fmt(nx.t)}</b> 출발이에요.` : ' 오늘은 더 이상 셔틀이 없어요.') + '</div>'; out.innerHTML = html; return }
+      const ni = w.findIndex(r => r.t >= n);
+      html += w.map((r, i) => {
+        const diff = r.t - n; const rem = diff < 0 ? `${-diff}분 전 출발` : diff === 0 ? '지금 출발' : `${diff}분 후`;
+        return `<div class="row${diff < 0 ? ' past' : ''}${i === ni ? ' next' : ''}"><div class="t">${fmt(r.t)}</div><div class="mid"><div class="ln">${r.L.name}${r.gd ? '<span class="g">출발 추정</span>' : ''}</div><div class="ar">${NM[r.o]} → ${NM[r.d]} · 도착 약 ${fmt(r.arr)}${r.ga ? ' (추정)' : ''}</div></div><div class="rem">${rem}</div></div>`
+      }).join('');
+      out.innerHTML = html
+    }
+    $('seg').onclick = e => {const m = e.target.dataset.m; if (!m) return; mode = m; for (const b of $('seg').children) b.classList.toggle('on', b.dataset.m === m); cur = null; render()};
+    $('from').onchange = $('to').onchange = render;
+    $('swap').onclick = () => {const a = $('from').value; $('from').value = $('to').value; $('to').value = a; render()};
+    $('tm').oninput = e => {manual = e.target.value || null; render()};
+    $('now').onclick = () => {manual = null; $('tm').value = ''; render()};
+    render(); setInterval(render, 15000);
+  </script>
+</body>
+
+</html>
